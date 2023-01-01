@@ -44,6 +44,9 @@ class MainActivity : AppCompatActivity() {
         if (Caches.lastSample?.isNotEmpty() == true) {
             binding.sampleEt.setText(Caches.lastSample)
         }
+        if (Caches.lastDictation?.isNotEmpty() == true) {
+            binding.dictationEt.setText(Caches.lastDictation)
+        }
         binding.hideIv.setOnClickListener {
             if (binding.sampleEt.alpha == 0f) {
                 binding.sampleEt.alpha = 1f;
@@ -57,9 +60,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkDictation() {
-        if (!TextUtils.isEmpty(binding.sampleEt.text.toString())) {
-            Caches.lastSample = binding.sampleEt.text.toString()
-        }
+        saveCaches()
         resetColor()
         val errorList = ArrayList<String>()
         val samples = binding.sampleEt.text.split(" ").toMutableList()
@@ -67,8 +68,15 @@ class MainActivity : AppCompatActivity() {
         val dictations = binding.dictationEt.text.split(" ").toMutableList()
         trimList(dictations)
         for (i in dictations.indices) {
-            if (!dictations.get(i).equals(samples.get(i))) {
-                Log.d(TAG, "dictation:${dictations.get(i)},${samples.get(i)}")
+            var d = dictations.get(i).replace("\n", "")
+            d=d.replace(" ","")
+            var s = samples.get(i).replace("\n", "")
+            s=s.replace(" ","")
+            if (!d.equals(s)) {
+                Log.d(TAG, "dictation:$d,$s")
+//                binding.dictationEt.setText(
+//                    binding.dictationEt.text.toString() + "\n" + "dictation:$d,$s."
+//                )
                 errorList.add(dictations.get(i))
             }
         }
@@ -89,8 +97,8 @@ class MainActivity : AppCompatActivity() {
     private fun trimList(list: MutableList<String>) {
         val it = list.iterator()
         while (it.hasNext()) {
-            val s = it.next()
-            if (TextUtils.isEmpty(s)) {
+            var s = it.next()
+            if (s.equals("\n") || TextUtils.isEmpty(s)) {
                 it.remove()
             }
         }
@@ -103,10 +111,17 @@ class MainActivity : AppCompatActivity() {
         binding.dictationEt.setText(binding.dictationEt.text.toString())
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    private fun saveCaches() {
         if (!TextUtils.isEmpty(binding.sampleEt.text.toString())) {
             Caches.lastSample = binding.sampleEt.text.toString()
         }
+        if (!TextUtils.isEmpty(binding.dictationEt.text.toString())) {
+            Caches.lastDictation = binding.dictationEt.text.toString()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        saveCaches()
     }
 }

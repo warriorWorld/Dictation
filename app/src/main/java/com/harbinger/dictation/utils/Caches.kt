@@ -9,4 +9,5 @@ object Caches {
     private val mmkv = MMKV.mmkvWithID("FSfs", MMKV.MULTI_PROCESS_MODE)
 
     var lastSample by mmkv.string()
+    var lastDictation by mmkv.string()
 }

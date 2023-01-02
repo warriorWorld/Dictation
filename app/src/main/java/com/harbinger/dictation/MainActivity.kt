@@ -10,6 +10,7 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.ui.AppBarConfiguration
 import com.harbinger.dictation.databinding.ActivityMainBinding
+import com.harbinger.dictation.dialog.NormalDialogBuilder
 import com.harbinger.dictation.utils.Caches
 import com.harbinger.dictation.utils.SharedPreferencesUtils
 import com.harbinger.dictation.utils.UltimateTextSizeUtil
@@ -62,18 +63,25 @@ class MainActivity : AppCompatActivity() {
     private fun checkDictation() {
         saveCaches()
         resetColor()
+        val sbDebug = StringBuilder()
         val errorList = ArrayList<String>()
         val samples = binding.sampleEt.text.split(" ").toMutableList()
-        trimList(samples)
+        sbDebug.append("sample:\n${trimList(samples)}")
         val dictations = binding.dictationEt.text.split(" ").toMutableList()
-        trimList(dictations)
+        sbDebug.append("dictation:\n${trimList(dictations)}\ncheck:\n")
+
         for (i in dictations.indices) {
             var d = dictations.get(i).replace("\n", "")
-            d=d.replace(" ","")
+            d = d.replace(" ", "")
+            d=d.replace("\t","")
+            d=d.replace("&#160;","")
             var s = samples.get(i).replace("\n", "")
-            s=s.replace(" ","")
+            s = s.replace(" ", "")
+            s=s.replace("\t","")
+            s=s.replace("&#160;","")
             if (!d.equals(s)) {
                 Log.d(TAG, "dictation:$d,$s")
+                sbDebug.append("$d!=$s|")
 //                binding.dictationEt.setText(
 //                    binding.dictationEt.text.toString() + "\n" + "dictation:$d,$s."
 //                )
@@ -92,9 +100,19 @@ class MainActivity : AppCompatActivity() {
             )
         }
         binding.dictationEt.setSelection(binding.dictationEt.text.length)
+
+        showLogDialog(sbDebug.toString())
     }
 
-    private fun trimList(list: MutableList<String>) {
+    private fun showLogDialog(log: String) {
+        NormalDialogBuilder(this)
+            .setMessage(log)
+            .setOkText("OK")
+            .create()
+            .show()
+    }
+
+    private fun trimList(list: MutableList<String>): String {
         val it = list.iterator()
         while (it.hasNext()) {
             var s = it.next()
@@ -102,9 +120,12 @@ class MainActivity : AppCompatActivity() {
                 it.remove()
             }
         }
+        val sb = StringBuilder()
         list.forEach {
             Log.d(TAG, it)
+            sb.append("$it,")
         }
+        return sb.toString()
     }
 
     private fun resetColor() {

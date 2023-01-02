@@ -105,6 +105,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showLogDialog(log: String) {
+        return
         NormalDialogBuilder(this)
             .setMessage(log)
             .setOkText("OK")
